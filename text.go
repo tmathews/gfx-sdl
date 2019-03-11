@@ -18,6 +18,9 @@ type Text struct {
 }
 
 func (t *Text) Draw(r *sdl.Renderer) {
+	if t.Surface == nil {
+		return
+	}
 	if t.Texture == nil {
 		var err error
 		t.Texture, err = r.CreateTextureFromSurface(t.Surface)
@@ -41,6 +44,11 @@ func (t *Text) Free() {
 }
 
 func (t *Text) Render() error {
+	// Free our old texture so the renderer will recreate
+	if t.Texture != nil {
+		t.Texture.Destroy()
+		t.Texture = nil
+	}
 	if t.Surface != nil {
 		t.Surface.Free()
 	}
@@ -49,11 +57,6 @@ func (t *Text) Render() error {
 	t.Surface, err = t.Font.RenderUTF8Blended(t.Content, t.Color)
 	if err != nil {
 		return err
-	}
-	// Free our old texture so the renderer will recreate
-	if t.Texture != nil {
-		t.Texture.Destroy()
-		t.Texture = nil
 	}
 	return nil
 }
